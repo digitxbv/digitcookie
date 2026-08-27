@@ -13,7 +13,17 @@
       <button @click="locale = 'nl'">nl</button>
       <strong>{{ locale }}</strong>
     </p>
-    <pre>{{ config }}</pre>
+    <p>onAccept log:</p>
+    <ClientOnly>
+      <ul>
+        <li v-for="line in log" :key="line">{{ line }}</li>
+        <li v-if="!log.length"><em>not fired</em></li>
+      </ul>
+    </ClientOnly>
+    <details>
+      <summary>runtime config</summary>
+      <pre>{{ config }}</pre>
+    </details>
     <footer>
       <CookieSettings />
     </footer>
@@ -22,9 +32,20 @@
 
 <script setup lang="ts">
 import type { Ref } from 'vue'
-const { consent, visible, accept, reject, withdraw } = useCookieConsent()
+const { consent, visible, accept, reject, withdraw, onAccept } = useCookieConsent()
 const config = useRuntimeConfig().public.digitcookie
 // Stand-in for @nuxtjs/i18n: the module reads `$i18n.locale` when present.
 const { $i18n } = useNuxtApp() as unknown as { $i18n: { locale: Ref<string> } }
 const locale = $i18n.locale
+
+// Stand-in for a bundled SDK (PostHog etc.): fires on click, or on load for a returning accepted visitor.
+const log = ref<string[]>([])
+// Client-only: onAccept also fires during SSR for an accepted visitor, and a timestamp would mismatch on hydration.
+if (import.meta.client) {
+  onAccept(() => {
+    const line = `onAccept fired at ${new Date().toISOString()}`
+    log.value.push(line)
+    console.log('[digitcookie] ' + line)
+  })
+}
 </script>
