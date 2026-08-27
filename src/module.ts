@@ -1,4 +1,4 @@
-import { addImports, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { addComponent, addImports, addTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
 
 export type Locale = 'en' | 'nl'
 
@@ -67,9 +67,35 @@ export default defineNuxtModule<ModuleOptions>({
 
     addImports({ name: 'useCookieConsent', from: resolve('./runtime/composables/useCookieConsent') })
 
+    addComponent({ name: 'CookieSettings', filePath: resolve('./runtime/components/CookieSettings.vue') })
+    addComponent({ name: 'CookieBanner', filePath: resolve('./runtime/components/CookieBanner.vue') })
+
     if (!options.enabled) {
       return
     }
+
+    // Mount <CookieBanner /> at the app root by wrapping the host's main component.
+    nuxt.hook('app:resolve', (app) => {
+      const hostApp = app.mainComponent!
+      const banner = resolve('./runtime/components/CookieBanner.vue')
+      const wrapper = addTemplate({
+        filename: 'digitcookie-app.vue',
+        write: true,
+        getContents: () => [
+          '<template>',
+          '  <HostApp />',
+          '  <CookieBanner />',
+          '</template>',
+          '',
+          '<script setup lang="ts">',
+          `import HostApp from ${JSON.stringify(hostApp)}`,
+          `import CookieBanner from ${JSON.stringify(banner)}`,
+          '</script>',
+          '',
+        ].join('\n'),
+      })
+      app.mainComponent = wrapper.dst
+    })
   },
 })
 

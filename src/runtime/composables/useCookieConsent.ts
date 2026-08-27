@@ -1,6 +1,7 @@
-import { useCookie, useNuxtApp, useRequestURL, useRuntimeConfig, useState } from '#imports'
+import { useCookie, useNuxtApp, useRequestURL, useState } from '#imports'
 import { parseConsent, type ConsentState } from '../cookie'
 import { createConsent, type CookieConsent } from '../consent'
+import { useDigitCookieOptions } from '../options'
 
 const KEY = '$digitcookie'
 
@@ -8,11 +9,11 @@ export function useCookieConsent(): CookieConsent {
   const nuxtApp = useNuxtApp() as ReturnType<typeof useNuxtApp> & { [KEY]?: CookieConsent }
   if (nuxtApp[KEY]) return nuxtApp[KEY]
 
-  const { cookie } = useRuntimeConfig().public.digitcookie
+  const { cookie } = useDigitCookieOptions()
   // Read once (SSR + hydration); writes go straight to document.cookie in createConsent.
   const raw = useCookie<string | null>(cookie.name, { readonly: true })
   const consent = useState<ConsentState | null>('digitcookie:consent', () => parseConsent(raw.value)?.state ?? null)
-  const visible = useState<boolean>('digitcookie:visible', () => false)
+  const visible = useState<boolean>('digitcookie:visible', () => consent.value === null)
 
   nuxtApp[KEY] = createConsent({
     consent,

@@ -1,19 +1,20 @@
 <template>
   <div>
     <h1>DigitCookie playground</h1>
-    <p>consent: <strong>{{ consent ?? 'not asked' }}</strong></p>
+    <p>consent: <strong>{{ consent ?? 'not asked' }}</strong> · banner visible: {{ visible }}</p>
     <p>
-      <button @click="accept">Accept</button>
-      <button @click="reject">Reject</button>
-      <button @click="withdraw">Withdraw</button>
-      <button @click="open">Open banner</button>
+      <button @click="accept">accept()</button>
+      <button @click="reject">reject()</button>
+      <button @click="withdraw">withdraw()</button>
     </p>
-    <p>banner visible: {{ visible }}</p>
     <pre>{{ config }}</pre>
+    <footer>
+      <CookieSettings />
+    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-const { consent, visible, accept, reject, withdraw, open } = useCookieConsent()
+const { consent, visible, accept, reject, withdraw } = useCookieConsent()
 const config = useRuntimeConfig().public.digitcookie
 </script>

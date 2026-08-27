@@ -1,0 +1,104 @@
+import { beforeEach, describe, expect, it } from 'vitest'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { useRuntimeConfig, useState } from '#imports'
+import { axe } from 'vitest-axe'
+import * as axeMatchers from 'vitest-axe/matchers'
+import CookieBanner from '../../src/runtime/components/CookieBanner.vue'
+import CookieSettings from '../../src/runtime/components/CookieSettings.vue'
+import { useCookieConsent } from '../../src/runtime/composables/useCookieConsent'
+
+expect.extend(axeMatchers)
+
+const cookies = [
+  { name: 'digitcookie', provider: 'this site', purpose: { en: 'Remembers your choice.' }, expiry: '1 year' },
+  { name: '_ga', provider: 'Google', purpose: { en: 'Analytics.' }, expiry: '2 years' },
+]
+
+beforeEach(() => {
+  document.cookie = 'digitcookie=; Max-Age=0; Path=/'
+  // Fresh visitor by default: the shared state the composable is built on.
+  useState('digitcookie:consent').value = null
+  useState('digitcookie:visible').value = true
+})
+
+async function mountBanner(overrides: Record<string, unknown> = {}) {
+  const config = useRuntimeConfig().public.digitcookie
+  Object.assign(config, { cookies, ...overrides })
+  return mountSuspended(CookieBanner, { attachTo: document.body })
+}
+
+describe('<CookieBanner />', () => {
+  it('renders no banner for a returning visitor', async () => {
+    useState('digitcookie:consent').value = 'accepted'
+    useState('digitcookie:visible').value = false
+    const w = await mountBanner()
+    expect(w.find('[role="dialog"]').exists()).toBe(false)
+  })
+
+  it('Accept records accepted and hides the banner', async () => {
+    const w = await mountBanner()
+    expect(w.find('[role="dialog"]').exists()).toBe(true)
+    await w.get('[data-digitcookie="accept"]').trigger('click')
+    expect(useCookieConsent().consent.value).toBe('accepted')
+    expect(document.cookie).toContain('digitcookie=accepted:')
+    expect(w.find('[role="dialog"]').exists()).toBe(false)
+  })
+
+  it('Reject records rejected and hides the banner', async () => {
+    const w = await mountBanner()
+    await w.get('[data-digitcookie="reject"]').trigger('click')
+    expect(useCookieConsent().consent.value).toBe('rejected')
+    expect(document.cookie).toContain('digitcookie=rejected:')
+    expect(w.find('[role="dialog"]').exists()).toBe(false)
+  })
+
+  it('Accept and Reject share the same class set', async () => {
+    const w = await mountBanner()
+    expect(w.get('[data-digitcookie="accept"]').classes()).toEqual(w.get('[data-digitcookie="reject"]').classes())
+  })
+
+  it('Show cookies toggles the Declaration table with one row per configured cookie', async () => {
+    const w = await mountBanner()
+    expect(w.find('table').exists()).toBe(false)
+    await w.get('[data-digitcookie="toggle"]').trigger('click')
+    const rows = w.findAll('tbody tr')
+    expect(rows).toHaveLength(2)
+    expect(rows[1]!.text()).toContain('_ga')
+    expect(rows[1]!.text()).toContain('Google')
+    expect(rows[1]!.text()).toContain('Analytics.')
+    expect(rows[1]!.text()).toContain('2 years')
+    await w.get('[data-digitcookie="toggle"]').trigger('click')
+    expect(w.find('table').exists()).toBe(false)
+  })
+
+  it('hides the Show cookies toggle when no cookies are configured', async () => {
+    const w = await mountBanner({ cookies: [] })
+    expect(w.find('[data-digitcookie="toggle"]').exists()).toBe(false)
+  })
+
+  it('has no axe violations when open', async () => {
+    const w = await mountBanner()
+    await w.get('[data-digitcookie="toggle"]').trigger('click')
+    expect(await axe(w.element as HTMLElement)).toHaveNoViolations()
+  })
+
+  it('moves focus into the dialog on show', async () => {
+    const w = await mountBanner()
+    await w.vm.$nextTick()
+    expect(w.get('[role="dialog"]').element.contains(document.activeElement)).toBe(true)
+  })
+})
+
+describe('<CookieSettings />', () => {
+  it('reopens the banner while keeping the stored answer', async () => {
+    useState('digitcookie:consent').value = 'rejected'
+    useState('digitcookie:visible').value = false
+    const banner = await mountBanner()
+    const link = await mountSuspended(CookieSettings, { attachTo: document.body })
+    expect(banner.find('[role="dialog"]').exists()).toBe(false)
+    await link.get('button').trigger('click')
+    await banner.vm.$nextTick()
+    expect(banner.find('[role="dialog"]').exists()).toBe(true)
+    expect(useCookieConsent().consent.value).toBe('rejected')
+  })
+})
