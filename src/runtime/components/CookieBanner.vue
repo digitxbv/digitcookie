@@ -37,7 +37,7 @@
         <tr v-for="c in cookies" :key="c.name">
           <td>{{ c.name }}</td>
           <td>{{ c.provider }}</td>
-          <td>{{ c.purpose.en }}</td>
+          <td>{{ localize(c.purpose, locale) }}</td>
           <td>{{ c.expiry }}</td>
         </tr>
       </tbody>
@@ -53,11 +53,13 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, watch } from 'vue'
 import { useCookieConsent } from '../composables/useCookieConsent'
+import { localize } from '../i18n'
 import { useDigitCookieOptions } from '../options'
-import { en as t } from '../texts/en'
+import { useTexts } from '../composables/useTexts'
 
 const { cookies } = useDigitCookieOptions()
 const { visible, accept, reject } = useCookieConsent()
+const { t, locale } = useTexts()
 
 const showCookies = ref(false)
 const dialog = ref<HTMLElement | null>(null)

@@ -1,4 +1,3 @@
-// Temporary English-only strings; ticket 10 adds nl + locale picking.
 export const en = {
   title: 'This website uses cookies',
   body: 'We use cookies to analyse traffic and improve your experience. You can accept or reject non-essential cookies; the site works either way.',

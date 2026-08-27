@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { useRuntimeConfig, useState } from '#imports'
+import { useNuxtApp, useRuntimeConfig, useState } from '#imports'
+import { ref } from 'vue'
 import { axe } from 'vitest-axe'
 import * as axeMatchers from 'vitest-axe/matchers'
 import CookieBanner from '../../src/runtime/components/CookieBanner.vue'
@@ -11,14 +12,18 @@ expect.extend(axeMatchers)
 
 const cookies = [
   { name: 'digitcookie', provider: 'this site', purpose: { en: 'Remembers your choice.' }, expiry: '1 year' },
-  { name: '_ga', provider: 'Google', purpose: { en: 'Analytics.' }, expiry: '2 years' },
+  { name: '_ga', provider: 'Google', purpose: { en: 'Analytics.', nl: 'Statistieken.' }, expiry: '2 years' },
 ]
+
+const nuxtApp = useNuxtApp() as { $i18n?: { locale: unknown } }
 
 beforeEach(() => {
   document.cookie = 'digitcookie=; Max-Age=0; Path=/'
   // Fresh visitor by default: the shared state the composable is built on.
   useState('digitcookie:consent').value = null
   useState('digitcookie:visible').value = true
+  delete nuxtApp.$i18n
+  Object.assign(useRuntimeConfig().public.digitcookie, { locale: '', texts: {}, htmlLang: '' })
 })
 
 async function mountBanner(overrides: Record<string, unknown> = {}) {
@@ -100,5 +105,41 @@ describe('<CookieSettings />', () => {
     await banner.vm.$nextTick()
     expect(banner.find('[role="dialog"]').exists()).toBe(true)
     expect(useCookieConsent().consent.value).toBe('rejected')
+  })
+
+  describe('locale', () => {
+    it('renders Dutch strings and the per-locale purpose when $i18n says nl', async () => {
+      nuxtApp.$i18n = { locale: ref('nl') }
+      const w = await mountBanner()
+      expect(w.find('#digitcookie-title').text()).toBe('Deze website maakt gebruik van cookies')
+      expect(w.find('[data-digitcookie="accept"]').text()).toBe('Accepteren')
+      await w.find('[data-digitcookie="toggle"]').trigger('click')
+      expect(w.text()).toContain('Statistieken.')
+      expect(w.text()).toContain('Remembers your choice.') // no nl purpose → falls back to en
+    })
+
+    it('switches live when the i18n locale changes', async () => {
+      const locale = ref('en')
+      nuxtApp.$i18n = { locale }
+      const w = await mountBanner()
+      expect(w.find('[data-digitcookie="accept"]').text()).toBe('Accept')
+      locale.value = 'nl'
+      await w.vm.$nextTick()
+      expect(w.find('[data-digitcookie="accept"]').text()).toBe('Accepteren')
+    })
+
+    it('forced locale beats i18n; texts overrides merge in', async () => {
+      nuxtApp.$i18n = { locale: ref('en') }
+      const w = await mountBanner({ locale: 'nl', texts: { nl: { accept: 'Alles toestaan' } } })
+      expect(w.find('[data-digitcookie="accept"]').text()).toBe('Alles toestaan')
+      expect(w.find('[data-digitcookie="reject"]').text()).toBe('Weigeren')
+    })
+
+    it('falls back to <html lang> then en', async () => {
+      const w = await mountBanner({ htmlLang: 'nl-NL' })
+      expect(w.find('[data-digitcookie="accept"]').text()).toBe('Accepteren')
+      const s = await mountSuspended(CookieSettings)
+      expect(s.text()).toBe('Cookie-instellingen')
+    })
   })
 })

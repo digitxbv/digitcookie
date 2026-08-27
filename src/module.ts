@@ -1,6 +1,7 @@
 import { addComponent, addImports, addTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
+import type { Locale, TextOverrides } from './runtime/i18n'
 
-export type Locale = 'en' | 'nl'
+export type { Locale, TextOverrides }
 
 export interface ExternalScript {
   src: string
@@ -18,7 +19,8 @@ export type GatedScript = ExternalScript | InlineScript
 export interface DeclaredCookie {
   name: string
   provider: string
-  purpose: Partial<Record<Locale, string>>
+  /** Plain string, or per-locale. */
+  purpose: string | Partial<Record<Locale, string>>
   expiry: string
 }
 
@@ -40,8 +42,11 @@ export interface ModuleOptions {
   /** Force a locale; otherwise @nuxtjs/i18n → `<html lang>` → `en`. */
   locale?: Locale
   /** Deep-merged over the packaged texts. */
-  texts: Partial<Record<Locale, Record<string, string>>>
+  texts: Partial<Record<Locale, TextOverrides>>
 }
+
+/** What the runtime reads back; `htmlLang` is captured from `app.head.htmlAttrs.lang` at build time. */
+export type ResolvedOptions = ModuleOptions & { htmlLang?: string }
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -65,7 +70,9 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Nuxt regenerates PublicRuntimeConfig from the host's config, which drops the optional
     // markers; read it back through useDigitCookieOptions() for the real shape.
-    nuxt.options.runtimeConfig.public.digitcookie = options as typeof nuxt.options.runtimeConfig.public.digitcookie
+    const htmlLang = nuxt.options.app.head?.htmlAttrs?.lang
+    const resolved: ResolvedOptions = htmlLang ? { ...options, htmlLang } : options
+    nuxt.options.runtimeConfig.public.digitcookie = resolved as typeof nuxt.options.runtimeConfig.public.digitcookie
 
     addImports({ name: 'useCookieConsent', from: resolve('./runtime/composables/useCookieConsent') })
 
@@ -103,6 +110,6 @@ export default defineNuxtModule<ModuleOptions>({
 
 declare module '@nuxt/schema' {
   interface PublicRuntimeConfig {
-    digitcookie: ModuleOptions
+    digitcookie: ResolvedOptions
   }
 }

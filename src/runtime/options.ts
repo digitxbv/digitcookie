@@ -1,7 +1,7 @@
 import { useRuntimeConfig } from '#imports'
-import type { ModuleOptions } from '../module'
+import type { ResolvedOptions } from '../module'
 
 /** Typed view of `runtimeConfig.public.digitcookie` (Nuxt's generated type erases the array element types). */
-export function useDigitCookieOptions(): ModuleOptions {
-  return useRuntimeConfig().public.digitcookie as unknown as ModuleOptions
+export function useDigitCookieOptions(): ResolvedOptions {
+  return useRuntimeConfig().public.digitcookie as unknown as ResolvedOptions
 }

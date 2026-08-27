@@ -4,9 +4,10 @@
 
 <script setup lang="ts">
 import { useCookieConsent } from '../composables/useCookieConsent'
-import { en as t } from '../texts/en'
+import { useTexts } from '../composables/useTexts'
 
 const { open } = useCookieConsent()
+const { t } = useTexts()
 </script>
 
 <style scoped>
