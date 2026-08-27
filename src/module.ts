@@ -63,7 +63,9 @@ export default defineNuxtModule<ModuleOptions>({
     const { resolve } = createResolver(import.meta.url)
     nuxt.options.build.transpile.push(resolve('./runtime'))
 
-    nuxt.options.runtimeConfig.public.digitcookie = options
+    // Nuxt regenerates PublicRuntimeConfig from the host's config, which drops the optional
+    // markers; read it back through useDigitCookieOptions() for the real shape.
+    nuxt.options.runtimeConfig.public.digitcookie = options as typeof nuxt.options.runtimeConfig.public.digitcookie
 
     addImports({ name: 'useCookieConsent', from: resolve('./runtime/composables/useCookieConsent') })
 

@@ -1,11 +1,16 @@
 import { computed, type Ref } from 'vue'
+import type { GatedScript } from '../module'
 import { consentCookieString, serializeConsent, type ConsentState } from './cookie'
+import { injectScripts } from './gate'
 
 export interface ConsentDeps {
   /** Shared state (useState on the Nuxt side). */
   consent: Ref<ConsentState | null>
   visible: Ref<boolean>
   options: { name: string; maxAgeDays: number; domain?: string }
+  /** Injected into `<head>` once consent is `accepted`; never on `rejected`/`null`. */
+  scripts?: GatedScript[]
+  gtm?: { id: string }
   /** `null` on the server: no cookie writes, no reloads. */
   document: Document | null
   secure: boolean
@@ -36,9 +41,13 @@ export function createConsent(deps: ConsentDeps) {
     return wasAccepted
   }
 
+  function inject() {
+    if (doc) injectScripts(deps.scripts ?? [], doc, deps.gtm)
+  }
+
   function accept() {
     if (record('accepted')) return
-    // TODO(ticket 09): inject gated scripts here, before host callbacks.
+    inject()
     for (const cb of listeners) cb()
   }
 
@@ -55,6 +64,9 @@ export function createConsent(deps: ConsentDeps) {
     listeners.add(cb)
     if (accepted.value) cb()
   }
+
+  // Returning accepted visitor: scripts start on load (the root-mounted banner creates this on every page).
+  if (accepted.value) inject()
 
   return { consent, accepted, visible, accept, reject, withdraw: reject, open, onAccept }
 }
