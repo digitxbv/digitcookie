@@ -27,6 +27,6 @@ describe('README', () => {
   it('documents the public API', () => {
     expect(headings).toContain('useCookieConsent()')
     expect(headings).toContain('<CookieSettings />')
-    expect(readme).toContain('github:digitxbv/digitcookie#v0.1.0')
+    expect(readme).toContain('github:digitxbv/digitcookie#v0.1.1')
   })
 })

@@ -8,7 +8,7 @@ Pin a tag as a git dependency:
 
 ```json
 "dependencies": {
-  "@digitxbv/digitcookie": "github:digitxbv/digitcookie#v0.1.0"
+  "@digitxbv/digitcookie": "github:digitxbv/digitcookie#v0.1.1"
 }
 ```
 
@@ -185,4 +185,4 @@ pnpm lint
 pnpm build
 ```
 
-Tag a release with `git tag v0.x.y && git push origin v0.x.y`; sites pin the tag.
+`dist/` is committed because sites install straight from a git tag (no registry, no build on install). To release: `pnpm build`, commit `dist/`, then `git tag v0.x.y && git push origin main v0.x.y`; sites pin the tag.
