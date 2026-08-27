@@ -1,4 +1,4 @@
-import { defineNuxtModule, createResolver } from '@nuxt/kit'
+import { addImports, createResolver, defineNuxtModule } from '@nuxt/kit'
 
 export type Locale = 'en' | 'nl'
 
@@ -64,6 +64,8 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.build.transpile.push(resolve('./runtime'))
 
     nuxt.options.runtimeConfig.public.digitcookie = options
+
+    addImports({ name: 'useCookieConsent', from: resolve('./runtime/composables/useCookieConsent') })
 
     if (!options.enabled) {
       return
