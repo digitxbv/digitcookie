@@ -1,0 +1,180 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_AFK_TIMEOUT_MS": "86400000"
+  },
+  "permissions": {
+    "allow": [
+      "Skill(pytest-skill)",
+      "Bash(docker compose -f docker-compose.test.yml run --rm django pytest:*)",
+      "Bash(docker compose -f docker-compose.test.yml run --rm django:*)",
+      "Bash(docker compose exec:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker exec:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git status:*)",
+      "Bash(git show:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git worktree:*)",
+      "Bash(go test:*)",
+      "Bash(go vet:*)",
+      "Bash(go build:*)",
+      "Bash(go:*)",
+      "Bash(python3:*)",
+      "Bash(python -c:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(pip show:*)",
+      "Bash(ls:*)",
+      "Bash(curl:*)",
+      "Bash(npm run:*)",
+      "Bash(npx nuxi:*)",
+      "Bash(node:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh api:*)",
+      "Bash(gh run:*)",
+      "Bash(gh release:*)",
+      "Bash(gh issue:*)",
+      "Bash(ssh manager-1:*)",
+      "Bash(supabase status:*)",
+      "WebSearch",
+      "WebFetch",
+      "Skill(pg_reviewcode)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "mcp__linear-server__list_teams",
+      "mcp__linear-server__list_projects",
+      "mcp__linear-server__save_issue",
+      "Read(//Users/patrickgerrits/.claude/**)",
+      "Bash(grep -r \"SENTRY\" ~/.claude/settings.*)",
+      "Bash(cat ~/.claude/mcp*.json)",
+      "Bash(coderabbit --version)",
+      "Bash(coderabbit auth:*)",
+      "Bash(coderabbit review:*)",
+      "Bash(grep -rn \"anthropic\" /Users/patrickgerrits/Development/gecab_backend_v3/requirements*.txt)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Skill(claude-api)",
+      "Skill(playwright-cli)",
+      "Bash(cat)",
+      "Bash(chmod +x /tmp/ai_test_send.sh)",
+      "Bash(/tmp/ai_test_send.sh Welke producten heb ik met de laagste voorraad?:*)",
+      "Bash(wc:*)",
+      "Bash(sed -i.bak '129,279d' gecab_backend_v3/rule/api/views.py)",
+      "Bash(sed -i.bak '146,433d' gecab_backend_v3/rule/api/views.py)",
+      "Bash(git stash *)",
+      "Read(//Users/patrickgerrits/.codex/**)",
+      "Bash(playwright-cli close *)",
+      "Bash(rtk git *)",
+      "Bash(cp /tmp/new-compose-test.yml docker-compose.test.yml)",
+      "Bash(rtk read *)",
+      "Bash(mkdir -p /Users/patrickgerrits/Development/twitch/f1-sync)",
+      "Bash(rtk ls *)",
+      "Bash(rtk grep *)",
+      "Bash(rtk proxy *)",
+      "Bash(xargs kill)",
+      "Bash(cp /private/tmp/claude-501/-Users-patrickgerrits-Development-gecab-backend-v3/db465ca1-3427-4ed2-ae22-6d68504efb23/scratchpad/sfccheck.mjs ./sfccheck.mjs)",
+      "Bash(node ./sfccheck.mjs app/components/shipping/Routing.vue app/components/shipping/QLSSenderAddress.vue app/components/shipping/QLSSettings.vue app/components/shipping/ShippingSettings.vue app/components/shipping/ShippingProviderWizard.vue)",
+      "Bash(rtk docker *)",
+      "Bash(cd *)",
+      "Read(//private/tmp/**)",
+      "Read(//tmp/**)",
+      "Read(//Users/patrickgerrits/Development/gecab_backend_v3_worktree_*/**)",
+      "Edit(//Users/patrickgerrits/Development/gecab_backend_v3_worktree_*/**)",
+      "Bash(docker stats *)",
+      "Bash(awk -F'[ /]+' '{s+=$1} END {print \"containers using ~\" s \" MiB \\(mixed units, rough\\)\"}')",
+      "Bash(echo \"exit=$?\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\)['services']; [print\\(f'{k}: {v.get\\(\\\\\"stop_grace_period\\\\\"\\)}'\\) for k,v in sorted\\(d.items\\(\\)\\)]\")",
+      "Bash(uv pip *)",
+      "Bash(python3 /Users/patrickgerrits/Development/gecab_backend_v3_worktree_dig_1128_pick_runs/.fit_check.py)",
+      "Bash(cp /tmp/ai_views_backup.py gecab_backend_v3/ai/api/views.py)",
+      "Bash(rtk pandoc *)",
+      "Bash(rm *)",
+      "Bash(envmanager push *)",
+      "Bash(envmanager list *)",
+      "Bash(python3 envmanager-export.py)",
+      "EnterWorktree",
+      "ExitWorktree",
+      "Bash(mkdir -p /Users/patrickgerrits/Development/gecab_backend_v3_worktree_altijdkoopblok_mvp/apps/altijdkoopblok/backend/docs)",
+      "Bash(gh repo *)",
+      "Bash(rsvg-convert -w 32 -h 32 favicon.svg -o /tmp/akb-fav32.png)",
+      "Bash(rsvg-convert -w 16 -h 16 favicon.svg -o /tmp/akb-fav16.png)",
+      "Bash(python3 -)",
+      "Bash(sed -i '' 's/^export const AMAZON_AVAILABLE = true$/export const AMAZON_AVAILABLE = false/' apps/frontend/app/utils/amazonAvailability.ts)",
+      "Bash(rtk playwright-cli *)",
+      "Bash(kill 35502)",
+      "Bash(pkill -f \"nuxt dev\")",
+      "Bash(prodsql *)",
+      "Bash(playwright-cli -s=akb close)",
+      "Bash(npx eslint *)",
+      "Bash(rtk curl *)",
+      "Bash(NUXT_IGNORE_LOCK=1 npx playwright test tests/subscription-usage.spec.ts --reporter=list)",
+      "Bash(python3 scripts_fix_meta.py)"
+    ],
+    "deny": [
+      "Bash(supabase db push:*)",
+      "Bash(supabase db reset:*)"
+    ],
+    "ask": [
+      "Bash(rm:*)"
+    ],
+    "additionalDirectories": []
+  },
+  "enabledMcpjsonServers": [
+    "linear-server"
+  ],
+  "disabledMcpjsonServers": [
+    "supabase-envman",
+    "supabase-floynk",
+    "postgres"
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/claude-code-style-hook.py\""
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/setup-worktree-tests.sh\""
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/teardown-worktree-tests.sh\""
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "posthog@claude-plugins-official": false,
+    "ponytail@ponytail": true,
+    "cloudflare@claude-plugins-official": false,
+    "codex@openai-codex": true,
+    "python-development@claude-code-workflows": false,
+    "pyright-lsp@claude-plugins-official": false
+  },
+  "outputStyle": "Concise"
+}
