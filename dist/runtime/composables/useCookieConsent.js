@@ -1,5 +1,5 @@
 import { useCookie, useNuxtApp, useRequestURL, useState } from "#imports";
-import { parseConsent } from "../cookie.js";
+import { parseConsent, readCookie } from "../cookie.js";
 import { createConsent } from "../consent.js";
 import { useDigitCookieOptions } from "../options.js";
 const KEY = "$digitcookie";
@@ -10,7 +10,7 @@ export function useCookieConsent() {
   const raw = useCookie(cookie.name, { readonly: true });
   const consent = useState("digitcookie:consent", () => parseConsent(raw.value)?.state ?? null);
   const visible = useState("digitcookie:visible", () => consent.value === null);
-  nuxtApp[KEY] = createConsent({
+  const api = createConsent({
     consent,
     visible,
     options: cookie,
@@ -20,5 +20,11 @@ export function useCookieConsent() {
     secure: useRequestURL().protocol === "https:",
     reload: () => location.reload()
   });
-  return nuxtApp[KEY];
+  nuxtApp[KEY] = api;
+  if (import.meta.client) {
+    const fromCookie = () => api.sync(parseConsent(readCookie(document.cookie, cookie.name))?.state ?? null);
+    if (nuxtApp.isHydrating) nuxtApp.hook("app:mounted", fromCookie);
+    else fromCookie();
+  }
+  return api;
 }

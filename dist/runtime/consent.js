@@ -32,10 +32,19 @@ export function createConsent(deps) {
   function open() {
     visible.value = true;
   }
+  function sync(state) {
+    if (state === consent.value) return;
+    consent.value = state;
+    visible.value = state === null;
+    if (state === "accepted") {
+      inject();
+      for (const cb of listeners) cb();
+    }
+  }
   function onAccept(cb) {
     listeners.add(cb);
     if (accepted.value) cb();
   }
   if (accepted.value) inject();
-  return { consent, accepted, visible, accept, reject, withdraw: reject, open, onAccept };
+  return { consent, accepted, visible, accept, reject, withdraw: reject, open, onAccept, sync };
 }

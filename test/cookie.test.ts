@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseConsent, serializeConsent, consentCookieString } from '../src/runtime/cookie'
+import { parseConsent, readCookie, serializeConsent, consentCookieString } from '../src/runtime/cookie'
 
 const at = new Date('2026-08-27T10:00:00.000Z')
 
@@ -35,5 +35,14 @@ describe('consentCookieString', () => {
   it('clears with Max-Age=0 when value is null', () => {
     expect(consentCookieString('digitcookie', null, { maxAgeDays: 365, domain: '.floynk.com', secure: true }))
       .toBe('digitcookie=; Path=/; SameSite=Lax; Max-Age=0; Domain=.floynk.com; Secure')
+  })
+})
+
+describe('readCookie', () => {
+  it('finds the named cookie among others', () => {
+    expect(readCookie('a=1; digitcookie=accepted:2026-08-27T10:00:00.000Z; b=2', 'digitcookie'))
+      .toBe('accepted:2026-08-27T10:00:00.000Z')
+    expect(readCookie('a=1', 'digitcookie')).toBeNull()
+    expect(readCookie('', 'digitcookie')).toBeNull()
   })
 })

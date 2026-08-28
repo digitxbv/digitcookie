@@ -22,3 +22,10 @@ export function consentCookieString(name, value, attrs) {
   if (attrs.secure) parts.push("Secure");
   return parts.join("; ");
 }
+export function readCookie(cookieString, name) {
+  for (const part of cookieString.split(";")) {
+    const [k, ...rest] = part.trim().split("=");
+    if (k === name) return decodeURIComponent(rest.join("="));
+  }
+  return null;
+}

@@ -20,7 +20,8 @@ const module$1 = defineNuxtModule({
     const { resolve } = createResolver(import.meta.url);
     nuxt.options.build.transpile.push(resolve("./runtime"));
     const htmlLang = nuxt.options.app.head?.htmlAttrs?.lang;
-    const resolved = htmlLang ? { ...options, htmlLang } : options;
+    const base = options;
+    const resolved = htmlLang ? { ...base, htmlLang } : base;
     nuxt.options.runtimeConfig.public.digitcookie = resolved;
     addImports({ name: "useCookieConsent", from: resolve("./runtime/composables/useCookieConsent") });
     addComponent({ name: "CookieSettings", filePath: resolve("./runtime/components/CookieSettings.vue") });

@@ -19,15 +19,17 @@ interface DeclaredCookie {
     purpose: string | Partial<Record<Locale, string>>;
     expiry: string;
 }
+interface CookieOptions {
+    name: string;
+    /** e.g. `.floynk.com` to share the consent cookie between www and app. */
+    domain?: string;
+    maxAgeDays: number;
+}
 interface ModuleOptions {
     /** `false` installs the module dark: no banner, no gating, nothing rendered. */
     enabled: boolean;
-    cookie: {
-        name: string;
-        /** e.g. `.floynk.com` to share the consent cookie between www and app. */
-        domain?: string;
-        maxAgeDays: number;
-    };
+    /** Merged over the defaults (`digitcookie`, 365 days), so `{ domain: '.example.com' }` is enough. */
+    cookie: Partial<CookieOptions>;
     /** Script tags injected into `<head>` only after Accept. Order preserved. */
     scripts: GatedScript[];
     /** Sugar: emit the GTM loader plus dataLayer/gtag consent push on Accept. */
@@ -42,7 +44,8 @@ interface ModuleOptions {
     texts: Partial<Record<Locale, TextOverrides>>;
 }
 /** What the runtime reads back; `htmlLang` is captured from `app.head.htmlAttrs.lang` at build time. */
-type ResolvedOptions = ModuleOptions & {
+type ResolvedOptions = Omit<ModuleOptions, 'cookie'> & {
+    cookie: CookieOptions;
     htmlLang?: string;
 };
 declare const _default: _nuxt_schema.NuxtModule<ModuleOptions, ModuleOptions, false>;
@@ -54,4 +57,4 @@ declare module '@nuxt/schema' {
 }
 
 export { _default as default };
-export type { DeclaredCookie, ExternalScript, GatedScript, InlineScript, ModuleOptions, ResolvedOptions };
+export type { CookieOptions, DeclaredCookie, ExternalScript, GatedScript, InlineScript, ModuleOptions, ResolvedOptions };

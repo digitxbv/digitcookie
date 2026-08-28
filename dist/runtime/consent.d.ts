@@ -31,5 +31,6 @@ export declare function createConsent(deps: ConsentDeps): {
     withdraw: () => void;
     open: () => void;
     onAccept: (cb: AcceptCallback) => void;
+    sync: (state: ConsentState | null) => void;
 };
 export type CookieConsent = ReturnType<typeof createConsent>;

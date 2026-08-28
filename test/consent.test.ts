@@ -85,4 +85,19 @@ describe('useCookieConsent behaviour', () => {
     api.accept()
     expect(api.visible.value).toBe(false)
   })
+
+  it('sync(): prerendered "not asked" state is replaced by the cookie after hydration', () => {
+    const { api } = harness(null)
+    api.visible.value = true
+    const cb = vi.fn()
+    api.onAccept(cb)
+    api.sync('rejected')
+    expect(api.visible.value).toBe(false)
+    expect(cb).not.toHaveBeenCalled()
+    api.sync('accepted')
+    expect(api.accepted.value).toBe(true)
+    expect(cb).toHaveBeenCalledTimes(1)
+    api.sync('accepted')
+    expect(cb).toHaveBeenCalledTimes(1)
+  })
 })

@@ -1,5 +1,5 @@
 import { useCookie, useNuxtApp, useRequestURL, useState } from '#imports'
-import { parseConsent, type ConsentState } from '../cookie'
+import { parseConsent, readCookie, type ConsentState } from '../cookie'
 import { createConsent, type CookieConsent } from '../consent'
 import { useDigitCookieOptions } from '../options'
 
@@ -15,7 +15,7 @@ export function useCookieConsent(): CookieConsent {
   const consent = useState<ConsentState | null>('digitcookie:consent', () => parseConsent(raw.value)?.state ?? null)
   const visible = useState<boolean>('digitcookie:visible', () => consent.value === null)
 
-  nuxtApp[KEY] = createConsent({
+  const api = createConsent({
     consent,
     visible,
     options: cookie,
@@ -25,5 +25,13 @@ export function useCookieConsent(): CookieConsent {
     secure: useRequestURL().protocol === 'https:',
     reload: () => location.reload(),
   })
-  return nuxtApp[KEY]
+  nuxtApp[KEY] = api
+
+  // Prerendered/cached pages ship the build-time state in the payload; trust the cookie instead.
+  if (import.meta.client) {
+    const fromCookie = () => api.sync(parseConsent(readCookie(document.cookie, cookie.name))?.state ?? null)
+    if (nuxtApp.isHydrating) nuxtApp.hook('app:mounted', fromCookie)
+    else fromCookie()
+  }
+  return api
 }

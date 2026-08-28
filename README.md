@@ -8,7 +8,7 @@ Pin a tag as a git dependency:
 
 ```json
 "dependencies": {
-  "@digitxbv/digitcookie": "github:digitxbv/digitcookie#v0.1.2"
+  "@digitxbv/digitcookie": "github:digitxbv/digitcookie#v0.1.3"
 }
 ```
 

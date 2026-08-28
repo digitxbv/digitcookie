@@ -60,6 +60,20 @@ export function createConsent(deps: ConsentDeps) {
     visible.value = true
   }
 
+  /**
+   * Re-apply the answer read from the live cookie. Prerendered pages hydrate `consent` from the
+   * build-time payload (always "not asked"), so the client re-reads the cookie once after hydration.
+   */
+  function sync(state: ConsentState | null) {
+    if (state === consent.value) return
+    consent.value = state
+    visible.value = state === null
+    if (state === 'accepted') {
+      inject()
+      for (const cb of listeners) cb()
+    }
+  }
+
   function onAccept(cb: AcceptCallback) {
     listeners.add(cb)
     if (accepted.value) cb()
@@ -68,7 +82,7 @@ export function createConsent(deps: ConsentDeps) {
   // Returning accepted visitor: scripts start on load (the root-mounted banner creates this on every page).
   if (accepted.value) inject()
 
-  return { consent, accepted, visible, accept, reject, withdraw: reject, open, onAccept }
+  return { consent, accepted, visible, accept, reject, withdraw: reject, open, onAccept, sync }
 }
 
 export type CookieConsent = ReturnType<typeof createConsent>

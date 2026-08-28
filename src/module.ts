@@ -24,15 +24,18 @@ export interface DeclaredCookie {
   expiry: string
 }
 
+export interface CookieOptions {
+  name: string
+  /** e.g. `.floynk.com` to share the consent cookie between www and app. */
+  domain?: string
+  maxAgeDays: number
+}
+
 export interface ModuleOptions {
   /** `false` installs the module dark: no banner, no gating, nothing rendered. */
   enabled: boolean
-  cookie: {
-    name: string
-    /** e.g. `.floynk.com` to share the consent cookie between www and app. */
-    domain?: string
-    maxAgeDays: number
-  }
+  /** Merged over the defaults (`digitcookie`, 365 days), so `{ domain: '.example.com' }` is enough. */
+  cookie: Partial<CookieOptions>
   /** Script tags injected into `<head>` only after Accept. Order preserved. */
   scripts: GatedScript[]
   /** Sugar: emit the GTM loader plus dataLayer/gtag consent push on Accept. */
@@ -46,7 +49,7 @@ export interface ModuleOptions {
 }
 
 /** What the runtime reads back; `htmlLang` is captured from `app.head.htmlAttrs.lang` at build time. */
-export type ResolvedOptions = ModuleOptions & { htmlLang?: string }
+export type ResolvedOptions = Omit<ModuleOptions, 'cookie'> & { cookie: CookieOptions, htmlLang?: string }
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -71,7 +74,8 @@ export default defineNuxtModule<ModuleOptions>({
     // Nuxt regenerates PublicRuntimeConfig from the host's config, which drops the optional
     // markers; read it back through useDigitCookieOptions() for the real shape.
     const htmlLang = nuxt.options.app.head?.htmlAttrs?.lang
-    const resolved: ResolvedOptions = htmlLang ? { ...options, htmlLang } : options
+    const base = options as ResolvedOptions // defaults are deep-merged, so cookie.name/maxAgeDays exist
+    const resolved: ResolvedOptions = htmlLang ? { ...base, htmlLang } : base
     nuxt.options.runtimeConfig.public.digitcookie = resolved as typeof nuxt.options.runtimeConfig.public.digitcookie
 
     addImports({ name: 'useCookieConsent', from: resolve('./runtime/composables/useCookieConsent') })

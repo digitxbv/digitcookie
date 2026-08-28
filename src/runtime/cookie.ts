@@ -39,3 +39,12 @@ export function consentCookieString(name: string, value: string | null, attrs: C
   if (attrs.secure) parts.push('Secure')
   return parts.join('; ')
 }
+
+/** Value of `name` in a `document.cookie` string, or null. */
+export function readCookie(cookieString: string, name: string): string | null {
+  for (const part of cookieString.split(';')) {
+    const [k, ...rest] = part.trim().split('=')
+    if (k === name) return decodeURIComponent(rest.join('='))
+  }
+  return null
+}

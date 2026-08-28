@@ -33,9 +33,8 @@ async function mountBanner(overrides: Record<string, unknown> = {}) {
 }
 
 describe('<CookieBanner />', () => {
-  it('renders no banner for a returning visitor', async () => {
-    useState('digitcookie:consent').value = 'accepted'
-    useState('digitcookie:visible').value = false
+  it('renders no banner for a returning visitor (cookie wins over hydrated state)', async () => {
+    document.cookie = 'digitcookie=accepted:2026-08-27T10:00:00.000Z; Path=/'
     const w = await mountBanner()
     expect(w.find('[role="dialog"]').exists()).toBe(false)
   })
